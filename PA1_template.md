@@ -8,8 +8,8 @@ output:
 
 ## Loading and preprocessing the data
 
-```{r date_conversion, cache=TRUE, message=FALSE}
 
+```r
 library(ggplot2)
 library(plyr)
 
@@ -23,14 +23,30 @@ clean <- activity[!is.na(activity$steps),]
 
 ## What is mean total number of steps taken per day?
 
-```{r mean_steps, cache=TRUE}
+
+```r
 sumTable <- aggregate(activity$steps ~ activity$date, FUN=sum, )
 colnames(sumTable) <- c("Date", "Steps")
 
 hist(sumTable$Steps, breaks=5, xlab="Steps", main = "Total Steps per day")
+```
 
+![](PA1_template_files/figure-html/mean_steps-1.png)<!-- -->
+
+```r
 as.integer(mean(sumTable$Steps))
+```
+
+```
+## [1] 10766
+```
+
+```r
 as.integer(median(sumTable$Steps))
+```
+
+```
+## [1] 10765
 ```
 
 The average number of steps taken each day was 10766 steps.
@@ -38,13 +54,22 @@ The median number of steps taken each day was 10765 steps.
 
 ## What is the average daily activity pattern?
 
-```{r avg_activity, cache=TRUE}
+
+```r
 intervalTable <- ddply(clean, .(interval), summarize, Avg = mean(steps))
 p <- ggplot(intervalTable, aes(x=interval, y=Avg), xlab="Interval", ylab="Average Number of Steps")
 p + geom_line()+xlab("Interval")+ylab("Average Number of Steps")+ggtitle("Average Number of Steps per Interval")
+```
 
+![](PA1_template_files/figure-html/avg_activity-1.png)<!-- -->
+
+```r
 maxSteps <- max(intervalTable$Avg)
 intervalTable[intervalTable$Avg==maxSteps,1]
+```
+
+```
+## [1] 835
 ```
 
 The maximum number of steps for a 5-minute interval was 206 steps.
@@ -52,13 +77,19 @@ The 5-minute interval which had the maximum number of steps was the 835 interval
 
 ## Imputing missing values
 
-```{r na_count, cache=TRUE}
+
+```r
 nrow(activity[is.na(activity$steps),])
+```
+
+```
+## [1] 2304
 ```
 
 The total number of rows with steps = 'NA' is 2304.
 
-```{r missing_values, cache=TRUE}
+
+```r
 avgTable <- ddply(clean, .(interval, day), summarize, Avg=mean(steps))
 
 nadata <- activity[is.na(activity$steps),]
@@ -74,12 +105,27 @@ sumTable2 <- aggregate(mergeData$steps ~ mergeData$date, FUN=sum, )
 colnames(sumTable2)<- c("Date", "Steps")
 
 as.integer(mean(sumTable2$Steps))
-as.integer(median(sumTable2$Steps))
+```
 
+```
+## [1] 10821
+```
+
+```r
+as.integer(median(sumTable2$Steps))
+```
+
+```
+## [1] 11015
+```
+
+```r
 hist(sumTable2$Steps, breaks=5, xlab="Steps", main = "Total Steps per Day with NAs Fixed", col="Black")
 hist(sumTable$Steps, breaks=5, xlab="Steps", main = "Total Steps per Day with NAs Fixed", col="Grey", add=T)
 legend("topright", c("Imputed Data", "Non-NA Data"), fill=c("black", "grey") )
 ```
+
+![](PA1_template_files/figure-html/missing_values-1.png)<!-- -->
 
 The new mean of the imputed data is 10821 steps, compared to the old mean of 10766 steps.
 That creates a difference of 55 steps on average per day.
@@ -91,7 +137,8 @@ However, the overall shape of the distribution has not changed.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{r differences, cache=TRUE}
+
+```r
 mergeData$DayCategory <- ifelse(mergeData$day %in% c("sabado", "domingo"), "Weekend", "Weekday")
 library(lattice)
 
@@ -100,7 +147,9 @@ intervalTable2 <- ddply(mergeData, .(interval, DayCategory), summarize, Avg = me
 xyplot(Avg~interval|DayCategory, data=intervalTable2, type="l",  layout = c(1,2),
        main="Average Steps per Interval Based on Type of Day", 
        ylab="Average Number of Steps", xlab="Interval")
-```       
+```
+
+![](PA1_template_files/figure-html/differences-1.png)<!-- -->
 
 The step activity trends are different based on whether the day occurs on a weekend or not.
 This may be due to people having an increased opportunity for activity beyond normal work hours
